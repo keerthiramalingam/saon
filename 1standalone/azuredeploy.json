@@ -182,12 +182,7 @@
         "subnet1Id": "[concat(variables('vnetId'), '/subnets/', variables('subnet1Name'))]"
 
     }
-Create storage account
-create nic
-start vm
-install sql agent
-create site prep
-uninstall and reinstall script via agent. 
+
 "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
