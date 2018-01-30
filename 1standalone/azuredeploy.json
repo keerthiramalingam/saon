@@ -157,7 +157,7 @@
 			"defaultValue": "contoso.com"
 		},
 
-		"existingVirtualNetworkId":
+		"existingVirtualNetworkName":
 		{
 			"type": "string",
 			"metadata":
@@ -165,7 +165,7 @@
 				"description": "Resource ID of the existing VNET. You can find the Resource ID for the VNET on the Properties blade of the VNET."
 			}
 		},
-		"existingSqlSubnetName":
+		"existingSubnetName":
 		{
 			"type": "string",
 			"metadata":
@@ -177,11 +177,10 @@
     },
 
     "variables":{
-        "sqlVMstorageAccountName": "[variables('vmStorageAccountName')]",
-        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
-        "subnet1Id": "[concat(variables('vnetId'), '/subnets/', variables('subnet1Name'))]"
-
-    }
+        "sqlVMstorageAccountName": "[parameters('vmStorageAccountName')]",
+        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
+        "subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('existingSubnetName'))]"
+    },
 
 "resources": [
     {
@@ -210,7 +209,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('subnet1Id')]"
+                "id": "[variables('subnetId')]"
               }
             }
           }
@@ -220,7 +219,7 @@
     {
       "apiVersion": "2017-03-30",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
+      "name": "[parameters('sqlvmName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]",
@@ -258,7 +257,7 @@
               "name": "SQLbin",
               "caching": "None",
               "createOption": "Empty",
-              "diskSizeGB": "50",
+              "diskSizeGB": 50,
               "lun": 0
             },
 			{
@@ -266,7 +265,7 @@
                   "uri": "[reference(concat('Microsoft.Storage/storageAccounts/',variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-data', '.vhd'))]"
                 },
                 "name": "data",
-                "caching": "Readonly",
+                "caching": "ReadOnly",
                 "createOption": "Empty",
                 "diskSizeGB": "[parameters('dataVolumeSize')]",
                 "lun": 1
@@ -276,7 +275,7 @@
                   "uri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-logs', '.vhd'))]"
                 },
                 "name": "logs",
-                "caching": "none",
+                "caching": "None",
                 "createOption": "Empty",
                 "diskSizeGB": "[parameters('logVolumeSize')]",
                 "lun": 2
