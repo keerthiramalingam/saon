@@ -44,10 +44,11 @@
 
 		"sqlImageSKU": "Enterprise",
 		"sqlImageVersion": "latest",
-        "vmNicName": {
-            "type": "string",
-            "defaultValue": "sqlVMNic"
-        },
+		"vmNicName":
+		{
+			"type": "string",
+			"defaultValue": "sqlVMNic"
+		},
 		"vmAdminUsername":
 		{
 			"type": "string",
@@ -81,8 +82,8 @@
 				"description": "Type of new Storage Accounts (Standard_LRS, Standard_GRS, Standard_RAGRS or Premium_LRS) to be created to store VM disks"
 			},
 			"defaultValue": "Standard_LRS"
-        },
-        "vmStorageAccountName":
+		},
+		"vmStorageAccountName":
 		{
 			"type": "string",
 			"metadata":
@@ -174,128 +175,145 @@
 			},
 			"defaultValue": "default"
 		}
-    },
+	},
 
-    "variables":{
-        "sqlVMstorageAccountName": "[parameters('vmStorageAccountName')]",
-        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
-        "subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('existingSubnetName'))]"
-    },
+	"variables":
+	{
+		"sqlVMstorageAccountName": "[parameters('vmStorageAccountName')]",
+		"vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
+		"subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('existingSubnetName'))]"
+	},
 
-"resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('sqlVMstorageAccountName')]",
-      "apiVersion": "2016-01-01",
-      "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "[parameters('storageAccountType')]"  
-      },
-      "kind": "Storage",
-      "properties": {}
-    },
-    {
-      "apiVersion": "2016-03-30",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[parameters('vmNicName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-       "[variables('vnetId')]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetId')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2017-03-30",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('sqlvmName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmNicName'))]",
-        "[variables('vnetId')]"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('sqlVMSize')]"
-        },
-        "osProfile": {
-          "computerName": "[parameters('sqlvmName')]",
-          "adminUsername": "[parameters('vmAdminUsername')]",
-          "adminPassword": "[parameters('vmAdminPassword')]",
-          "provisionVMAgent": true,
-          "enableAutomaticUpdates": true,
-          "timeZone": "GMT Standard Time",
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[parameters('sqlImagePublisher')]", 
-            "offer": "[parameters('sqlImageOffer')]", 
-            "sku": "[parameters('sqlImageSKU')]", 
-            "version": "[parameters('sqlImageVersion')]"
-          },
-          "osDisk": {
-            "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "vhd": {              
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-binaries', '.vhd')]" 
-                
-              },
-              "name": "SQLbin",
-              "caching": "None",
-              "createOption": "Empty",
-              "diskSizeGB": 50,
-              "lun": 0
-            },
+	"resources": [
+		{
+			"type": "Microsoft.Storage/storageAccounts",
+			"name": "[variables('sqlVMstorageAccountName')]",
+			"apiVersion": "2016-01-01",
+			"location": "[resourceGroup().location]",
+			"sku":
 			{
-                "vhd": {              
-                  "uri": "[reference(concat('Microsoft.Storage/storageAccounts/',variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-data', '.vhd'))]"
-                },
-                "name": "data",
-                "caching": "ReadOnly",
-                "createOption": "Empty",
-                "diskSizeGB": "[parameters('dataVolumeSize')]",
-                "lun": 1
-              },
-              {
-                "vhd": {              
-                  "uri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-logs', '.vhd'))]"
-                },
-                "name": "logs",
-                "caching": "None",
-                "createOption": "Empty",
-                "diskSizeGB": "[parameters('logVolumeSize')]",
-                "lun": 2
-              }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('vmNicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob]"
-          }
-        }
-      }
-    }
+				"name": "[parameters('storageAccountType')]"
+			},
+			"kind": "Storage",
+			"properties": {}
+		},
+		{
+			"apiVersion": "2016-03-30",
+			"type": "Microsoft.Network/networkInterfaces",
+			"name": "[parameters('vmNicName')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[variables('vnetId')]"
+			],
+			"properties":
+			{
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties":
+						{
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet":
+							{
+								"id": "[variables('subnetId')]"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"apiVersion": "2017-03-30",
+			"type": "Microsoft.Compute/virtualMachines",
+			"name": "[parameters('sqlvmName')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]",
+				"[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmNicName'))]",
+				"[variables('vnetId')]"
+			],
+			"properties":
+			{
+				"hardwareProfile":
+				{
+					"vmSize": "[parameters('sqlVMSize')]"
+				},
+				"osProfile":
+				{
+					"computerName": "[parameters('sqlvmName')]",
+					"adminUsername": "[parameters('vmAdminUsername')]",
+					"adminPassword": "[parameters('vmAdminPassword')]",
+					"provisionVMAgent": true,
+					"enableAutomaticUpdates": true,
+					"timeZone": "GMT Standard Time",
+				},
+				"storageProfile":
+				{
+					"imageReference":
+					{
+						"publisher": "[parameters('sqlImagePublisher')]",
+						"offer": "[parameters('sqlImageOffer')]",
+						"sku": "[parameters('sqlImageSKU')]",
+						"version": "[parameters('sqlImageVersion')]"
+					},
+					"osDisk":
+					{
+						"createOption": "FromImage"
+					},
+					"dataDisks": [
+						{
+							"vhd":
+							{
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-binaries', '.vhd')]"
 
+							},
+							"name": "SQLbin",
+							"caching": "None",
+							"createOption": "Empty",
+							"diskSizeGB": 50,
+							"lun": 0
+						},
+						{
+							"vhd":
+							{
+								"uri": "[reference(concat('Microsoft.Storage/storageAccounts/',variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-data', '.vhd'))]"
+							},
+							"name": "data",
+							"caching": "ReadOnly",
+							"createOption": "Empty",
+							"diskSizeGB": "[parameters('dataVolumeSize')]",
+							"lun": 1
+						},
+						{
+							"vhd":
+							{
+								"uri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-logs', '.vhd'))]"
+							},
+							"name": "logs",
+							"caching": "None",
+							"createOption": "Empty",
+							"diskSizeGB": "[parameters('logVolumeSize')]",
+							"lun": 2
+						}
+					]
+				},
+				"networkProfile":
+				{
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('vmNicName'))]"
+						}
+					]
+				},
+				"diagnosticsProfile":
+				{
+					"bootDiagnostics":
+					{
+						"enabled": true,
+						"storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob]"
+					}
+				}
+			}
+		}
+	]
 }
