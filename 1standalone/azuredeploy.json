@@ -1,0 +1,307 @@
+
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters":
+	{
+		"sqlvmName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Naming prefix for each new resource created. 8-char max, lowercase alphanumeric"
+			},
+			"defaultValue": "sqlVM"
+		},
+		"sqlVMSize":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Size of the SQL VMs to be created"
+			},
+			"defaultValue": "Standard_A8_v2"
+		},
+
+		"sqlImagePublisher": "MicrosoftSQLServer",
+
+		"sqlImageOffer":
+		{
+			"type": "string",
+			"allowedValues": [
+				"SQL2012SP2-WS2012R2",
+				"SQL2012SP3-WS2012R2",
+				"SQL2014-WS2012R2",
+				"SQL2014SP1-WS2012R2",
+				"SQL2016-WS2012R2"
+			],
+			"metadata":
+			{
+				"description": "The Sql Server Version"
+			},
+			"defaultValue": "SQL2016-WS2012R2"
+		},
+
+		"sqlImageSKU": "Enterprise",
+		"sqlImageVersion": "latest",
+        "vmNicName": {
+            "type": "string",
+            "defaultValue": "sqlVMNic"
+        },
+		"vmAdminUsername":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "The name of the Administrator of the new VMs and Domain"
+			},
+			"defaultValue": "alwaysonadmin"
+		},
+		"vmAdminPassword":
+		{
+			"type": "securestring",
+			"metadata":
+			{
+				"description": "The password for the Administrator account of the new VMs and Domain"
+			},
+			"defaultValue": "kit-Pass$123"
+		},
+
+		"storageAccountType":
+		{
+			"type": "string",
+			"allowedValues": [
+				"Standard_LRS",
+				"Standard_GRS",
+				"Standard_RAGRS",
+				"Premium_LRS"
+			],
+			"metadata":
+			{
+				"description": "Type of new Storage Accounts (Standard_LRS, Standard_GRS, Standard_RAGRS or Premium_LRS) to be created to store VM disks"
+			},
+			"defaultValue": "Standard_LRS"
+        },
+        "vmStorageAccountName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Data Volume Size"
+			},
+			"defaultValue": "sqlVMstorageAccount"
+		},
+		"dataVolumeSize":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Data Volume Size"
+			},
+			"defaultValue": "100"
+		},
+		"logVolumeSize":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Log volmne Size"
+			},
+			"defaultValue": "20"
+		},
+
+		"sqlServerServiceAccountUserName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "The SQL Server Service Account name"
+			},
+			"defaultValue": "sqlservice-uniq"
+		},
+		"sqlServerServiceAccountPassword":
+		{
+			"type": "securestring",
+			"metadata":
+			{
+				"description": "The SQL Server Service Account password"
+			},
+			"defaultValue": "kit-Pass$123"
+		},
+		"domainAccountUserName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "The SQL Server Service Account name"
+			},
+			"defaultValue": "sqlservice-uniq"
+		},
+		"domainAccountPassword":
+		{
+			"type": "securestring",
+			"metadata":
+			{
+				"description": "The SQL Server Service Account password"
+			},
+			"defaultValue": "kit-Pass$123"
+		},
+
+		"existingDomainName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "DNS domain name for existing Active Directory domain"
+			},
+			"defaultValue": "contoso.com"
+		},
+
+		"existingVirtualNetworkId":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Resource ID of the existing VNET. You can find the Resource ID for the VNET on the Properties blade of the VNET."
+			}
+		},
+		"existingSqlSubnetName":
+		{
+			"type": "string",
+			"metadata":
+			{
+				"description": "Name of the existing subnet in the existing VNET to which the SQL & Witness VMs should be deployed"
+			},
+			"defaultValue": "default"
+		}
+    },
+
+    "variables":{
+        "sqlVMstorageAccountName": "[variables('vmStorageAccountName')]",
+        "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "subnet1Id": "[concat(variables('vnetId'), '/subnets/', variables('subnet1Name'))]"
+
+    }
+Create storage account
+create nic
+start vm
+install sql agent
+create site prep
+uninstall and reinstall script via agent. 
+"resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('sqlVMstorageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"  
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('vmNicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+       "[variables('vnetId')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet1Id')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmNicName'))]",
+        "[variables('vnetId')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('sqlVMSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('sqlvmName')]",
+          "adminUsername": "[parameters('vmAdminUsername')]",
+          "adminPassword": "[parameters('vmAdminPassword')]",
+          "provisionVMAgent": true,
+          "enableAutomaticUpdates": true,
+          "timeZone": "GMT Standard Time",
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('sqlImagePublisher')]", 
+            "offer": "[parameters('sqlImageOffer')]", 
+            "sku": "[parameters('sqlImageSKU')]", 
+            "version": "[parameters('sqlImageVersion')]"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "vhd": {              
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-binaries', '.vhd')]" 
+                
+              },
+              "name": "SQLbin",
+              "caching": "None",
+              "createOption": "Empty",
+              "diskSizeGB": "50",
+              "lun": 0
+            },
+			{
+                "vhd": {              
+                  "uri": "[reference(concat('Microsoft.Storage/storageAccounts/',variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-data', '.vhd'))]"
+                },
+                "name": "data",
+                "caching": "Readonly",
+                "createOption": "Empty",
+                "diskSizeGB": "[parameters('dataVolumeSize')]",
+                "lun": 1
+              },
+              {
+                "vhd": {              
+                  "uri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-logs', '.vhd'))]"
+                },
+                "name": "logs",
+                "caching": "none",
+                "createOption": "Empty",
+                "diskSizeGB": "[parameters('logVolumeSize')]",
+                "lun": 2
+              }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('vmNicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      }
+    }
+
+}
