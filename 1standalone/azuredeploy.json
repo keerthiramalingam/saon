@@ -175,7 +175,6 @@
 	"variables":
 	{
 		"sqlVMstorageAccountName": "[parameters('vmStorageAccountName')]",
-		"vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
 		"subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('existingSubnetName'))]"
 	},
 	"resources": [
