@@ -196,7 +196,6 @@
 			"type": "Microsoft.Network/networkInterfaces",
 			"name": "[parameters('vmNicName')]",
 			"location": "[resourceGroup().location]",
-			"dependsOn": ["[variables('vnetId')]"],
 			"properties":
 			{
 				"ipConfigurations": [
