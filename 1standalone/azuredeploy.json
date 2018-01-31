@@ -264,7 +264,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[reference(concat('Microsoft.Storage/storageAccounts/',variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-data', '.vhd'))]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-data', '.vhd')]"
 							},
 							"name": "data",
 							"caching": "ReadOnly",
@@ -275,13 +275,24 @@
 						{
 							"vhd":
 							{
-								"uri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'),'/vhds/', parameters('sqlvmName'), '-datadisk-logs', '.vhd'))]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-logs', '.vhd')]"
 							},
 							"name": "logs",
 							"caching": "None",
 							"createOption": "Empty",
 							"diskSizeGB": "[parameters('logVolumeSize')]",
 							"lun": 2
+						},
+						{
+							"vhd":
+							{
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-logs', '.vhd')]"
+							},
+							"name": "tmps",
+							"caching": "None",
+							"createOption": "Empty",
+							"diskSizeGB": 3,
+							"lun": 3
 						}
 					]
 				},
