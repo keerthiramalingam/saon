@@ -159,7 +159,8 @@
 			"metadata":
 			{
 				"description": "Resource ID of the existing VNET. You can find the Resource ID for the VNET on the Properties blade of the VNET."
-			}
+			},
+			"defaultValue": "sqlon-vnet"
 		},
 		"existingSubnetName":
 		{
@@ -168,7 +169,7 @@
 			{
 				"description": "Name of the existing subnet in the existing VNET to which the SQL & Witness VMs should be deployed"
 			},
-			"defaultValue": "default"
+			"defaultValue": "sqlsubnet"
 		}
 	},
 	"variables":
@@ -232,7 +233,7 @@
 					"adminPassword": "[parameters('vmAdminPassword')]",
 					"provisionVMAgent": true,
 					"enableAutomaticUpdates": true,
-					"timeZone": "GMT Standard Time",
+					"timeZone": "GMT Standard Time"
 				},
 				"storageProfile":
 				{
