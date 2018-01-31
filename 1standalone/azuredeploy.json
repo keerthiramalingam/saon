@@ -219,7 +219,9 @@
 			"type": "Microsoft.Compute/virtualMachines",
 			"name": "[parameters('sqlvmName')]",
 			"location": "[resourceGroup().location]",
-			"dependsOn": ["[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]", "[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmNicName'))]", "[variables('vnetId')]"],
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))]", 
+				"[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmNicName'))]"],
 			"properties":
 			{
 				"hardwareProfile":
