@@ -376,7 +376,7 @@
 					"fileUris": [
 						"[variables('bootstrapURI')]"
 					],
-					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'), '-parm ', variables('customscriptURI'))]"
+					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'), '-sqlins ', variables('customscriptURI'))]"
 				}
 			}
 		}
