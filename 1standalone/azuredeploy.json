@@ -246,7 +246,7 @@
 					{
 						"name": "osdisk",
 						"vhd": {
-							"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-osdisk', '.vhd')]"
+							"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, parameters('sqlvmName'), '/',parameters('sqlvmName'), '-osdisk', '.vhd')]"
 						},
 						"caching": "ReadWrite",
 						"createOption": "FromImage"
@@ -255,7 +255,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-binaries', '.vhd')]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, parameters('sqlvmName'), '/', parameters('sqlvmName'), '-datadisk-binaries', '.vhd')]"
 							},
 							"name": "SQLbin",
 							"caching": "None",
@@ -266,7 +266,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-data', '.vhd')]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, parameters('sqlvmName'), '/', parameters('sqlvmName'), '-datadisk-data', '.vhd')]"
 							},
 							"name": "data",
 							"caching": "ReadOnly",
@@ -277,7 +277,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-logs', '.vhd')]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, parameters('sqlvmName'), '/', parameters('sqlvmName'), '-datadisk-logs', '.vhd')]"
 							},
 							"name": "logs",
 							"caching": "None",
@@ -288,7 +288,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-tmps', '.vhd')]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, parameters('sqlvmName'), '/', parameters('sqlvmName'), '-datadisk-tmps', '.vhd')]"
 							},
 							"name": "tmps",
 							"caching": "None",
