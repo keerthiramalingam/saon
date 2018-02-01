@@ -88,7 +88,7 @@
 			{
 				"description": "Data Volume Size"
 			},
-			"defaultValue": "standalonestore"
+			"defaultValue": "sqlcentricastand"
 		},
 		"dataVolumeSize":
 		{
@@ -231,10 +231,7 @@
 				{
 					"computerName": "[parameters('sqlvmName')]",
 					"adminUsername": "[parameters('vmAdminUsername')]",
-					"adminPassword": "[parameters('vmAdminPassword')]",
-					"provisionVMAgent": true,
-					"enableAutomaticUpdates": true,
-					"timeZone": "GMT Standard Time"
+					"adminPassword": "[parameters('vmAdminPassword')]"
 				},
 				"storageProfile":
 				{
@@ -247,6 +244,11 @@
 					},
 					"osDisk":
 					{
+						"name": "osdisk",
+						"vhd": {
+							"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-osdisk', '.vhd')]"
+						},
+						"caching": "ReadWrite",
 						"createOption": "FromImage"
 					},
 					"dataDisks": [
