@@ -288,7 +288,7 @@
 						{
 							"vhd":
 							{
-								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-logs', '.vhd')]"
+								"uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('sqlVMstorageAccountName'))).primaryEndpoints.blob, '/', parameters('sqlvmName'), '-datadisk-tmps', '.vhd')]"
 							},
 							"name": "tmps",
 							"caching": "None",
