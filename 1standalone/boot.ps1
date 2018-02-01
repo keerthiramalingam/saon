@@ -5,6 +5,7 @@ param (
     [string]$sqlins = ""
  )
 
+$sqlins = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/custom.ps1"
 New-Item -ItemType directory -Path C:\tst
 
 Add-Content C:\tst\output.txt "$(Get-Date) $pp_region XXXXX $pp_environment XXXXX $pp_role and $vmss"
