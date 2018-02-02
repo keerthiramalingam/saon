@@ -72,8 +72,19 @@ $disk = Get-Disk -Number $driveNumber
         }
 }
 
-C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
 
+
+New-Item -ItemType directory -Path F:\$env:computername
+
+AddTimeStamp "Created F drive folder"
+
+(Get-Content $tstfolder\Install.ini).replace('computername', $env:computername) | Set-Content $tstfolder\Install.ini
+
+AddTimeStamp "updated Install.ini"
+
+C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Install.ini
+
+AddTimeStamp "SQL installed"
 function AddTimeStamp([string]$sr)
 {    
     Add-Content C:\tst\output.txt "$(Get-Date) $sr"
