@@ -1,40 +1,50 @@
 # uninstall
-C:\SQLServer_13.0_Full\setup.exe /ACTION="Uninstall" /SUPPRESSPRIVACYSTATEMENTNOTICE="False" /QUIET="True" /FEATURES=SQLENGINE,REPLICATION,ADVANCEDANALYTICS,FULLTEXT,DQ,AS,RS,DQC,CONN,IS,BC,SDK,BOL,MDS,BROWSER,WRITER /INSTANCENAME="MSSQLSERVER"
+$installFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/install-sql.ini"
+$uninstallFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/uninstall-sql.ini"
+$tstfolder = 'C:\tst'
 
-AddStampT F 2 Bin
+Invoke-WebRequest -Uri $installFile -OutFile $tstfolder\Install.ini
+Invoke-WebRequest -Uri $uninstallFile -OutFile $tstfolder\Uninstall.ini
 
-AddStampT G 3 Data
-AddStampT H 4 Logs
-AddStampT P 5
+C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
 
-function AddStampT()
+AddDrive F 2 Bin
+AddTimeStamp 'added F drive'
 
-{    
+AddDrive G 3 Data
+AddTimeStamp 'added G drive'
+
+AddDrive H 4 Logs
+AddTimeStamp 'added H drive'
+
+AddDrive P 5
+AddTimeStamp 'added P drive'
+
+function AddDrive()
+    {    
 Param($driveLetter,$driveNumber, $driveName)
-
-
 $disk = Get-Disk -Number $driveNumber
 
             
         if ($disk.IsOffline -eq $true)
         {
-            Write-Host 'Setting disk Online'
+            AddTimeStamp 'added P drive'
             $disk | Set-Disk -IsOffline $false
         }
         else
         {
-            Write-Host 'Disk is Online' $driveLetter, $driveNumber, $driveName 
+            AddTimeStamp "already online for $driveLetter, $driveNumber, $driveName "   
         }
 
 
         if ($disk.IsReadOnly -eq $true)
         {
-            Write-Verbose 'Setting disk to not ReadOnly'
+            AddTimeStamp 'Setting disk to not ReadOnly'
             $disk | Set-Disk -IsReadOnly $false
         }
         else
         {
-            Write-Verbose 'Setting is not ReadOnly'
+            AddTimeStamp 'Setting is not ReadOnly'
         }
 
         $diskNumber = $disk.Number
@@ -42,19 +52,29 @@ $disk = Get-Disk -Number $driveNumber
         if ($disk.PartitionStyle -eq "RAW")
         {
             
-            Write-Host "Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
+            AddTimeStamp "Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
 
             $disk | Initialize-Disk -PartitionStyle GPT -PassThru
                 
             $partition = $disk | New-Partition -DriveLetter $driveLetter -UseMaximumSize
 
             # Sometimes the disk will still be read-only after the call to New-Partition returns.
-            Start-Sleep -Seconds 20
+            Start-Sleep -Seconds 10
 
-            $partition | Format-Volume -FileSystem NTFS -Confirm -Force -NewFileSystemLabel $driveName
+            $confirmpreference = 'none'
 
-            Write-Host "Successfully initialized disk number '$($DiskNumber)'. to '$($driveLetter)' "
+            $partition | Format-Volume -FileSystem NTFS -Confirm:$false -Force -NewFileSystemLabel $driveName
+
+            AddTimeStamp "Successfully initialized disk number '$($DiskNumber)'. to '$($driveLetter)' "
+            Start-Sleep -Seconds 20            
 
             return $true
         }
+}
+
+C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
+
+function AddTimeStamp([string]$sr)
+{    
+    Add-Content C:\tst\output.txt "$(Get-Date) $sr"
 }
