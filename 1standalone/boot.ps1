@@ -4,6 +4,34 @@ param (
     [string]$pp_role = "role not passed",
     [string]$sqlins = ""
  )
+########################################################
+$DNSSuffix = "keerthi.io"
+
+Start-Sleep -Seconds 300
+
+tzutil /s "GMT Standard Time"
+
+# Update primary DNS Suffix for FQDN
+Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\" -Name Domain -Value $DNSSuffix
+Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\" -Name "NV Domain" -Value $DNSSuffix
+
+$networkConfig = Get-WmiObject Win32_NetworkAdapterConfiguration -filter "ipenabled = 'true'"
+$networkConfig.SetDnsDomain($DNSSuffix)
+$networkConfig.SetDynamicDNSRegistration($true,$true)
+ipconfig /RegisterDns
+
+# Install software so we can update AD DNSHostname attribute
+Add-WindowsFeature RSAT-AD-PowerShell
+
+# Update AD DNS Name
+$ad_username = "adadmin@keerthi.io"
+$ad_password = "Password-12345"
+$secureStringPwd = ($ad_password | ConvertTo-SecureString -AsPlainText -Force)
+$creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $ad_username, $secureStringPwd)
+$ad_command = (Set-ADComputer -Identity $computerName -DNSHostName "$computerName.$DNSSuffix" -Credential $creds)
+$ad_command
+
+ ########################################################
 
 $tstfolder = C:\tst
 
