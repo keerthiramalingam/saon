@@ -69,7 +69,7 @@
 			{
 				"description": "The password for the Administrator account of the new VMs and Domain"
 			},
-			"defaultValue": "kit-Pass$123"
+			"defaultValue": "Password-12345"
 		},
 		"storageAccountType":
 		{
@@ -115,7 +115,7 @@
 			{
 				"description": "The SQL Server Service Account name"
 			},
-			"defaultValue": "sqlservice-uniq"
+			"defaultValue": "sqlserviceac"
 		},
 		"sqlServerServiceAccountPassword":
 		{
@@ -124,7 +124,7 @@
 			{
 				"description": "The SQL Server Service Account password"
 			},
-			"defaultValue": "kit-Pass$123"
+			"defaultValue": "Password-12345"
 		},
 		"domainAccountUserName":
 		{
@@ -133,7 +133,7 @@
 			{
 				"description": "The SQL Server Service Account name"
 			},
-			"defaultValue": "sqlservice-uniq"
+			"defaultValue": "adadmin"
 		},
 		"domainAccountPassword":
 		{
@@ -142,17 +142,8 @@
 			{
 				"description": "The SQL Server Service Account password"
 			},
-			"defaultValue": "kit-Pass$123"
-		},
-		"existingDomainName":
-		{
-			"type": "string",
-			"metadata":
-			{
-				"description": "DNS domain name for existing Active Directory domain"
-			},
-			"defaultValue": "contoso.com"
-		},
+			"defaultValue": "Password-12345"
+		},		
 		"existingVirtualNetworkName":
 		{
 			"type": "string",
@@ -210,8 +201,22 @@
 		{
 			"type": "string",
 			"defaultValue": "undefined"
-		}
+		},
+		
+		"domainToJoin": {
+			"type": "string",
+			"defaultValue": "keerthi.io"
+		},
 
+		"domainJoinOptions": {
+			"type": "int",
+			"defaultValue": 3
+		},
+
+		"ouPath": {
+			"type": "string",
+			"defaultValue": "OU=centsqlvms,DC=centricaplc,DC=com"
+		}
 	},
 	"variables":
 	{
@@ -219,7 +224,8 @@
 		"vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
 		"subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('existingSubnetName'))]",
 		"bootstrapURI": "[concat(parameters('bootstrapTemplateBaseURL'), parameters('bootstrapScriptName'))]",
-		"customscriptURI": "[concat(parameters('customTemplateBaseURL'), parameters('customScriptName'))]"
+		"customscriptURI": "[concat(parameters('customTemplateBaseURL'), parameters('customScriptName'))]",
+		"firstLogonCommandsString": "<FirstLogonCommands><SynchronousCommand><Order>1</Order><CommandLine>%SystemRoot%\\System32\\reg.exe add \"HKU\\.DEFAULT\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections\" /ve</CommandLine></SynchronousCommand><SynchronousCommand><Order>2</Order><CommandLine>%SystemRoot%\\System32\\reg.exe ADD \"HKU\\.DEFAULT\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections\" /v DefaultConnectionSettings /t REG_BINARY /d \"46000000050000000b0000001000000031302e36352e3139322e343a38303830\"</CommandLine></SynchronousCommand></FirstLogonCommands>"
 	},
 	"resources": [
 		{
@@ -377,6 +383,51 @@
 						"[variables('bootstrapURI')]"
 					],
 					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'))]"
+				}
+			}
+		},
+		{
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(parameters('sqlvmName'), '/BGInfo')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]"
+			],
+			"properties": {
+				"publisher": "Microsoft.Compute",
+				"type": "BGInfo",
+				"typeHandlerVersion": "2.1",
+				"settings": {},
+				"protectedSettings": null
+			}
+		},
+		{
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(parameters('sqlvmName'), '/joindomain')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
+		        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/bootstrap')]"
+			],
+			"tags": {
+				"displayName": "JoinDomain"
+			},
+			"properties": {
+				"publisher": "Microsoft.Compute",
+				"type": "JsonADDomainExtension",
+				"typeHandlerVersion": "1.3",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"Name": "[parameters('domainToJoin')]",
+					"OUPath": "[parameters('ouPath')]",
+					"User": "[concat(parameters('domainToJoin'),'\\',parameters('domainAccountUserName'))]",
+					"Restart": "false",
+					"Options": "[parameters('domainJoinOptions')]"
+				},
+				"protectedsettings": {
+					"Password": "[parameters('domainAccountPassword')]"
 				}
 			}
 		}
