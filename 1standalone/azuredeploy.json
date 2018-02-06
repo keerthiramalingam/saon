@@ -422,6 +422,28 @@
 					"Password": "[parameters('domainAccountPassword')]"
 				}
 			}
+		},
+		{
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(parameters('sqlvmName'),'/bootstrap')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/joindomain/')]"
+			],
+			"properties": {
+				"publisher": "Microsoft.Compute",
+				"type": "CustomScriptExtension",
+				"typeHandlerVersion": "1.9",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"fileUris": [
+						"[variables('bootstrapURI')]"
+					],
+					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'))]"
+				}
+			}
 		}
 	]
 }
