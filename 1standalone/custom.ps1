@@ -82,6 +82,9 @@ AddTimeStamp "Created F drive folder"
 
 AddTimeStamp "updated Install.ini"
 
+# enable below code after getting sevice account tot work
+#(Get-Content $tstfolder\Install.ini).replace('svcact', $sqlsvcdomainsct) | Set-Content $tstfolder\Install.ini
+
 C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Install.ini
 
 AddTimeStamp "SQL installed"

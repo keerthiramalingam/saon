@@ -53,6 +53,11 @@
 			"type": "string",
 			"defaultValue": "sqlVMNic"
 		},
+		"sqlVMipaddress":
+		{
+			"type": "string",
+			"defaultValue": "10.1.0.10"
+		},
 		"vmAdminUsername":
 		{
 			"type": "string",
@@ -162,6 +167,10 @@
 			},
 			"defaultValue": "sqlsubnet"
 		},
+		"dnsServers": {
+			"type": "array",
+			"defaultValue": ["10.1.0.101"]
+		},
 
 		"bootstrapTemplateBaseURL":
 		{
@@ -215,7 +224,7 @@
 
 		"ouPath": {
 			"type": "string",
-			"defaultValue": "OU=centsqlvms,DC=centricaplc,DC=com"
+			"defaultValue": "OU=centsqlvms,DC=keerthi,DC=io"
 		}
 	},
 	"variables":
@@ -252,14 +261,18 @@
 						"name": "ipconfig1",
 						"properties":
 						{
-							"privateIPAllocationMethod": "Dynamic",
+							"privateIPAllocationMethod": "Static",
+							"privateIPAddress": "[parameters('sqlVMipaddress')]",
 							"subnet":
 							{
 								"id": "[variables('subnetId')]"
 							}
 						}
 					}
-				]
+				],
+				"dnsSettings": {
+					"dnsServers": "[parameters('dnsServers')]"
+				  }
 			}
 		},
 		{
@@ -368,27 +381,6 @@
 		{
 			"apiVersion": "2015-06-15",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"name": "[concat(parameters('sqlvmName'),'/bootstrap')]",
-			"location": "[resourceGroup().location]",
-			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]"
-			],
-			"properties": {
-				"publisher": "Microsoft.Compute",
-				"type": "CustomScriptExtension",
-				"typeHandlerVersion": "1.9",
-				"autoUpgradeMinorVersion": true,
-				"settings": {
-					"fileUris": [
-						"[variables('bootstrapURI')]"
-					],
-					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'))]"
-				}
-			}
-		},
-		{
-			"apiVersion": "2015-06-15",
-			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"name": "[concat(parameters('sqlvmName'), '/BGInfo')]",
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
@@ -409,7 +401,7 @@
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
-		        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/bootstrap')]"
+		        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/BGInfo/')]"
 			],
 			"tags": {
 				"displayName": "JoinDomain"
