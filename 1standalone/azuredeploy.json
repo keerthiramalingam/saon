@@ -224,7 +224,7 @@
 
 		"ouPath": {
 			"type": "string",
-			"defaultValue": "OU=centsqlvms,DC=keerthi,DC=io"
+			"defaultValue": "OU=sqltestou,DC=keerthi,DC=io"
 		}
 	},
 	"variables":
