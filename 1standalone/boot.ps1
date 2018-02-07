@@ -7,6 +7,9 @@ param (
 ########################################################
 $DNSSuffix = "keerthi.io"
 
+$tstfolder = 'C:\tst'
+New-Item -ItemType directory -Path $tstfolder
+AddTimeStamp "Created tst folder"
 Start-Sleep -Seconds 300
 
 tzutil /s "GMT Standard Time"
@@ -19,7 +22,7 @@ $networkConfig = Get-WmiObject Win32_NetworkAdapterConfiguration -filter "ipenab
 $networkConfig.SetDnsDomain($DNSSuffix)
 $networkConfig.SetDynamicDNSRegistration($true,$true)
 ipconfig /RegisterDns
-
+AddTimeStamp "DNS registered"
 # Install software so we can update AD DNSHostname attribute
 Add-WindowsFeature RSAT-AD-PowerShell
 
@@ -33,16 +36,21 @@ $ad_command
 
  ########################################################
 
-$tstfolder = C:\tst
+
 
 $sqlins = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/custom.ps1"
-New-Item -ItemType directory -Path $tstfolder
 
-Add-Content C:\tst\output.txt "$(Get-Date) $pp_region XXXXX $pp_environment XXXXX $pp_role and $vmss"
+
+Add-Content C:\tst\output.txt "$(Get-Date) $pp_region XXXXX $pp_environment XXXXX $pp_role and $sqlins"
 
 $onlyScriptURI = $sqlins.Split(" ")[0]
 $onlyFileName = $onlyScriptURI.Split("\/")[-1]
-$localScriptLocation = "C:\tst\" + $onlyFileName
+$localScriptLocation = $tstfolder + '\' + $onlyFileName
 
 Invoke-WebRequest -Uri $onlyScriptURI -OutFile $localScriptLocation
 Invoke-Expression $localScriptLocation
+
+function AddTimeStamp([string]$sr)
+{    
+    Add-Content C:\tst\output.txt "$(Get-Date) $sr"
+}
