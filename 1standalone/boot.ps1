@@ -9,7 +9,7 @@ $DNSSuffix = "keerthi.io"
 
 $tstfolder = 'C:\tst'
 New-Item -ItemType directory -Path $tstfolder
-AddTimeStamp "Created tst folder"
+
 Start-Sleep -Seconds 300
 
 tzutil /s "GMT Standard Time"
@@ -22,7 +22,7 @@ $networkConfig = Get-WmiObject Win32_NetworkAdapterConfiguration -filter "ipenab
 $networkConfig.SetDnsDomain($DNSSuffix)
 $networkConfig.SetDynamicDNSRegistration($true,$true)
 ipconfig /RegisterDns
-AddTimeStamp "DNS registered"
+
 # Install software so we can update AD DNSHostname attribute
 Add-WindowsFeature RSAT-AD-PowerShell
 
@@ -49,8 +49,3 @@ $localScriptLocation = $tstfolder + '\' + $onlyFileName
 
 Invoke-WebRequest -Uri $onlyScriptURI -OutFile $localScriptLocation
 Invoke-Expression $localScriptLocation
-
-function AddTimeStamp([string]$sr)
-{    
-    Add-Content C:\tst\output.txt "$(Get-Date) $sr"
-}

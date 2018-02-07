@@ -9,16 +9,16 @@ Invoke-WebRequest -Uri $uninstallFile -OutFile $tstfolder\Uninstall.ini
 C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
 
 AddDrive F 2 Bin
-AddTimeStamp 'added F drive'
+Add-Content C:\tst\output.txt "$(Get-Date) added F drive"
 
-AddDrive G 3 Data
-AddTimeStamp 'added G drive'
+AddDrive G 3 Datas
+Add-Content C:\tst\output.txt "$(Get-Date) added G drive "
 
 AddDrive H 4 Logs
-AddTimeStamp 'added H drive'
+Add-Content C:\tst\output.txt "$(Get-Date) added H drive "
 
 AddDrive P 5
-AddTimeStamp 'added P drive'
+Add-Content C:\tst\output.txt "$(Get-Date) added P drive "
 
 function AddDrive()
     {    
@@ -28,23 +28,23 @@ $disk = Get-Disk -Number $driveNumber
             
         if ($disk.IsOffline -eq $true)
         {
-            AddTimeStamp 'added P drive'
+            
             $disk | Set-Disk -IsOffline $false
         }
         else
         {
-            AddTimeStamp "already online for $driveLetter, $driveNumber, $driveName "   
+            Add-Content C:\tst\output.txt "$(Get-Date) already online for $driveLetter, $driveNumber, $driveName "   
         }
 
 
         if ($disk.IsReadOnly -eq $true)
         {
-            AddTimeStamp 'Setting disk to not ReadOnly'
+            Add-Content C:\tst\output.txt "$(Get-Date) Setting disk to not ReadOnly "
             $disk | Set-Disk -IsReadOnly $false
         }
         else
         {
-            AddTimeStamp 'Setting is not ReadOnly'
+            Add-Content C:\tst\output.txt "$(Get-Date) Setting is not ReadOnly "
         }
 
         $diskNumber = $disk.Number
@@ -52,7 +52,7 @@ $disk = Get-Disk -Number $driveNumber
         if ($disk.PartitionStyle -eq "RAW")
         {
             
-            AddTimeStamp "Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
+            AddTiAdd-Content C:\tst\output.txt "$(Get-Date) Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
 
             $disk | Initialize-Disk -PartitionStyle GPT -PassThru
                 
@@ -65,7 +65,7 @@ $disk = Get-Disk -Number $driveNumber
 
             $partition | Format-Volume -FileSystem NTFS -Confirm:$false -Force -NewFileSystemLabel $driveName
 
-            AddTimeStamp "Successfully initialized disk number '$($DiskNumber)'. to '$($driveLetter)' "
+            Add-Content C:\tst\output.txt "$(Get-Date) Successfully initialized disk number '$($DiskNumber)'. to '$($driveLetter)' "
             Start-Sleep -Seconds 20            
 
             return $true
@@ -76,19 +76,15 @@ $disk = Get-Disk -Number $driveNumber
 
 New-Item -ItemType directory -Path F:\$env:computername
 
-AddTimeStamp "Created F drive folder"
+Add-Content C:\tst\output.txt "$(Get-Date) Created F drive folder"
 
 (Get-Content $tstfolder\Install.ini).replace('computername', $env:computername) | Set-Content $tstfolder\Install.ini
 
-AddTimeStamp "updated Install.ini"
+Add-Content C:\tst\output.txt "$(Get-Date) updated Install.ini"
 
 # enable below code after getting sevice account tot work
 #(Get-Content $tstfolder\Install.ini).replace('svcact', $sqlsvcdomainsct) | Set-Content $tstfolder\Install.ini
 
 C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Install.ini
 
-AddTimeStamp "SQL installed"
-function AddTimeStamp([string]$sr)
-{    
-    Add-Content C:\tst\output.txt "$(Get-Date) $sr"
-}
+Add-Content C:\tst\output.txt "$(Get-Date) SQL installed"
