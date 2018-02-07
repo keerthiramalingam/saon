@@ -9,7 +9,7 @@ $DNSSuffix = "keerthi.io"
 
 $tstfolder = 'C:\tst'
 New-Item -ItemType directory -Path $tstfolder
-
+Add-Content C:\tst\output.txt "$(Get-Date) "
 Start-Sleep -Seconds 300
 
 tzutil /s "GMT Standard Time"
@@ -22,7 +22,7 @@ $networkConfig = Get-WmiObject Win32_NetworkAdapterConfiguration -filter "ipenab
 $networkConfig.SetDnsDomain($DNSSuffix)
 $networkConfig.SetDynamicDNSRegistration($true,$true)
 ipconfig /RegisterDns
-
+Add-Content C:\tst\output.txt "$(Get-Date) DNS registered "
 # Install software so we can update AD DNSHostname attribute
 Add-WindowsFeature RSAT-AD-PowerShell
 
@@ -34,6 +34,7 @@ $creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $ad
 $ad_command = (Set-ADComputer -Identity $computerName -DNSHostName "$computerName.$DNSSuffix" -Credential $creds)
 $ad_command
 
+Add-Content C:\tst\output.txt "$(Get-Date) added to domain"
  ########################################################
 
 
