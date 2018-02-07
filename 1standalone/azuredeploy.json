@@ -403,9 +403,6 @@
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
 		        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/BGInfo/')]"
 			],
-			"tags": {
-				"displayName": "JoinDomain"
-			},
 			"properties": {
 				"publisher": "Microsoft.Compute",
 				"type": "JsonADDomainExtension",
