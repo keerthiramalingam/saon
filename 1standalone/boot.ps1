@@ -22,6 +22,7 @@ $networkConfig = Get-WmiObject Win32_NetworkAdapterConfiguration -filter "ipenab
 $networkConfig.SetDnsDomain($DNSSuffix)
 $networkConfig.SetDynamicDNSRegistration($true,$true)
 ipconfig /RegisterDns
+Start-Sleep -Seconds 30
 Add-Content C:\tst\output.txt "$(Get-Date) DNS registered "
 # Install software so we can update AD DNSHostname attribute
 Add-WindowsFeature RSAT-AD-PowerShell
