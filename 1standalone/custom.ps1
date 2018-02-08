@@ -1,27 +1,5 @@
-# uninstall
-$installFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/install-sql.ini"
-$uninstallFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/uninstall-sql.ini"
-$tstfolder = 'C:\tst'
-
-Invoke-WebRequest -Uri $installFile -OutFile $tstfolder\Install.ini
-Invoke-WebRequest -Uri $uninstallFile -OutFile $tstfolder\Uninstall.ini
-
-C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
-
-AddDrive F 2 Bin
-Add-Content C:\tst\output.txt "$(Get-Date) added F drive"
-
-AddDrive G 3 Datas
-Add-Content C:\tst\output.txt "$(Get-Date) added G drive "
-
-AddDrive H 4 Logs
-Add-Content C:\tst\output.txt "$(Get-Date) added H drive "
-
-AddDrive P 5
-Add-Content C:\tst\output.txt "$(Get-Date) added P drive "
-
 function AddDrive()
-    {    
+{    
 Param($driveLetter,$driveNumber, $driveName)
 $disk = Get-Disk -Number $driveNumber
 
@@ -52,7 +30,7 @@ $disk = Get-Disk -Number $driveNumber
         if ($disk.PartitionStyle -eq "RAW")
         {
             
-            AddTiAdd-Content C:\tst\output.txt "$(Get-Date) Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
+            Add-Content C:\tst\output.txt "$(Get-Date) Initializing disk number '$($DiskNumber)' for drive letter '$($driveLetter)' ... "
 
             $disk | Initialize-Disk -PartitionStyle GPT -PassThru
                 
@@ -66,11 +44,36 @@ $disk = Get-Disk -Number $driveNumber
             $partition | Format-Volume -FileSystem NTFS -Confirm:$false -Force -NewFileSystemLabel $driveName
 
             Add-Content C:\tst\output.txt "$(Get-Date) Successfully initialized disk number '$($DiskNumber)'. to '$($driveLetter)' "
-            Start-Sleep -Seconds 20            
+        
 
             return $true
         }
 }
+
+# uninstall
+$installFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/install-sql.ini"
+$uninstallFile = "https://raw.githubusercontent.com/keerthiramalingam/saon/master/1standalone/uninstall-sql.ini"
+$tstfolder = 'C:\tst'
+
+Invoke-WebRequest -Uri $installFile -OutFile $tstfolder\Install.ini
+Invoke-WebRequest -Uri $uninstallFile -OutFile $tstfolder\Uninstall.ini
+
+C:\SQLServer_13.0_Full\setup.exe /CONFIGURATIONFILE=$tstfolder\Uninstall.ini
+
+
+AddDrive F 2 Bin
+Add-Content C:\tst\output.txt "$(Get-Date) added F drive"
+
+AddDrive G 3 Datas
+Add-Content C:\tst\output.txt "$(Get-Date) added G drive "
+
+AddDrive H 4 Logs
+Add-Content C:\tst\output.txt "$(Get-Date) added H drive "
+
+AddDrive P 5
+Add-Content C:\tst\output.txt "$(Get-Date) added P drive "
+
+
 
 
 

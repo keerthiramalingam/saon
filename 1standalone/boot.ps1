@@ -30,6 +30,7 @@ Add-WindowsFeature RSAT-AD-PowerShell
 # Update AD DNS Name
 $ad_username = "adadmin@keerthi.io"
 $ad_password = "Password-12345"
+$computerName = $env:computername
 $secureStringPwd = ($ad_password | ConvertTo-SecureString -AsPlainText -Force)
 $creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $ad_username, $secureStringPwd)
 $ad_command = (Set-ADComputer -Identity $computerName -DNSHostName "$computerName.$DNSSuffix" -Credential $creds)
