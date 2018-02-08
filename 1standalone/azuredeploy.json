@@ -400,8 +400,7 @@
 			"name": "[concat(parameters('sqlvmName'), '/joindomain')]",
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
-		        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/BGInfo/')]"
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Compute",
@@ -426,8 +425,7 @@
 			"name": "[concat(parameters('sqlvmName'),'/bootstrap')]",
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]",
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'),'/extensions/', '/joindomain/')]"
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlvmName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Compute",
@@ -440,6 +438,7 @@
 					],
 					"commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ',parameters('bootstrapScriptName'),' -pp_region ',parameters('selectedRegion'),' -pp_environment ',parameters('selectedEnvironment'),' -pp_role ',parameters('pprole'))]"
 				}
+				
 			}
 		}
 	]

@@ -10,7 +10,7 @@ $DNSSuffix = "keerthi.io"
 $tstfolder = 'C:\tst'
 New-Item -ItemType directory -Path $tstfolder
 Add-Content C:\tst\output.txt "$(Get-Date) "
-Start-Sleep -Seconds 300
+Start-Sleep -Seconds 301
 
 tzutil /s "GMT Standard Time"
 
